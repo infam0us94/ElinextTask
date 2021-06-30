@@ -2,7 +2,6 @@ package com.project.elinexttask.ui
 
 import android.os.Bundle
 import android.view.*
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -72,8 +71,13 @@ class MainFragment : Fragment() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.add_btn -> Toast.makeText(context, "ADDED!", Toast.LENGTH_SHORT).show()
-            R.id.reload_btn -> Toast.makeText(context, "RELOADED!", Toast.LENGTH_SHORT).show()
+            R.id.add_btn -> {
+                adapter.setImage(Image("http://loremflickr.com/200/200/"))
+                recView.smoothScrollToPosition(adapter.itemCount - 1)
+            }
+            R.id.reload_btn -> {
+                initViewModel()
+            }
         }
         return super.onOptionsItemSelected(item)
     }

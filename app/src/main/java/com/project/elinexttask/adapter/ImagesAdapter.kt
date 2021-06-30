@@ -18,11 +18,17 @@ class ImagesAdapter(private val context: Context, private var list: ArrayList<Im
         notifyDataSetChanged()
     }
 
+    fun setImage(img: Image) {
+        list.add(img)
+        notifyDataSetChanged()
+    }
+
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
         private val image: ImageView = itemView.findViewById(R.id.image)
 
         fun bind(data: Image) {
+
             Glide.with(context)
                 .load(data.url)
                 .into(image)
