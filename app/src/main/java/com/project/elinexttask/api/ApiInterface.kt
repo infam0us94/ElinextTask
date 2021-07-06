@@ -9,6 +9,7 @@ interface ApiInterface {
     @GET("v1/images/search")
     suspend fun getImages(
         @Header("x-api-key") header: String,
-        @Query("limit") limit: Int
+        @Query("limit") limit: Int,
+        @Query("page") query: Int
     ): List<Image>
 }

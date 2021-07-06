@@ -3,15 +3,16 @@ package com.project.elinexttask.ui
 import android.os.Bundle
 import android.view.*
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.project.elinexttask.R
-import com.project.elinexttask.adapter.ImagesAdapter
-import com.project.elinexttask.api.model.Image
+import com.project.elinexttask.adapter.RecyclerViewAdapter
 import com.project.elinexttask.databinding.MainFragmentBinding
-import com.project.elinexttask.viewmodel.ImageViewModel
+import com.project.elinexttask.viewmodel.MainActivityViewModel
+import kotlinx.coroutines.flow.collectLatest
 
 class MainFragment : Fragment() {
 
@@ -19,11 +20,7 @@ class MainFragment : Fragment() {
     private val binding get() = _binding!!
 
     private lateinit var recView: RecyclerView
-    private lateinit var adapter: ImagesAdapter
-
-    private lateinit var viewModel: ImageViewModel
-
-    private var listImage: List<Image> = ArrayList()
+    private lateinit var adapter: RecyclerViewAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -46,21 +43,21 @@ class MainFragment : Fragment() {
 
     private fun initRecView() {
         recView = binding.recView
-        recView.layoutManager = StaggeredGridLayoutManager(4, StaggeredGridLayoutManager.VERTICAL)
-        adapter = ImagesAdapter(requireContext(), listImage as ArrayList<Image>)
+        recView.layoutManager =
+            StaggeredGridLayoutManager(10, StaggeredGridLayoutManager.HORIZONTAL)
+        val decoration =
+            DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL)
+        recView.addItemDecoration(decoration)
+        adapter = RecyclerViewAdapter()
         recView.adapter = adapter
     }
 
     private fun initViewModel() {
-        viewModel = ViewModelProvider(this).get(ImageViewModel::class.java)
-        viewModel.getPost().observe(viewLifecycleOwner, listImagesObserver)
-        viewModel.makeApiCall()
-    }
-
-    private val listImagesObserver = Observer<List<Image>> { result ->
-        if (result != null) {
-            listImage = result
-            adapter.setImages(result as ArrayList<Image>)
+        val viewModel = ViewModelProvider(this).get(MainActivityViewModel::class.java)
+        lifecycleScope.launchWhenCreated {
+            viewModel.getListData().collectLatest {
+                adapter.submitData(it)
+            }
         }
     }
 
@@ -72,8 +69,8 @@ class MainFragment : Fragment() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.add_btn -> {
-                adapter.setImage(Image("http://loremflickr.com/200/200/"))
-                recView.smoothScrollToPosition(adapter.itemCount - 1)
+//                   adapter.setImage(Image("http://loremflickr.com/200/200/"))
+//                recView.smoothScrollToPosition(adapter.itemCount - 1)
             }
             R.id.reload_btn -> {
                 initViewModel()
